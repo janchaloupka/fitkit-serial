@@ -38,12 +38,13 @@ steps:
     env GOOS=windows GOARCH=amd64 go install -v .
     env GOOS=linux GOARCH=amd64 go install -v .
     env GOOS=openbsd GOARCH=amd64 go install -v .
-    #env GOOS=darwin GOARCH=amd64 go install -v .
+    env GOOS=darwin GOARCH=amd64 go install -v .
     
-    mv '$(GBIN)/windows_amd64/fitkit-relay.exe' '$(GBIN)/fitkit-relay-win64.exe'
-    mv '$(GBIN)/openbsd_amd64/fitkit-relay' '$(GBIN)/fitkit-relay-bsd64'
-    mv '$(GBIN)/fitkit-relay' '$(GBIN)/fitkit-relay-linux64'
-    #mv '$(GOBIN)/darwin_amd64/fitkit-relay' '$(GBIN)/fitkit-relay-darwin64'
+    mv '$(GBIN)/windows_amd64/fitkit-relay.exe' '$(GBIN)/fitkit-relay-win-x86_64.exe'
+    mv '$(GBIN)/openbsd_amd64/fitkit-relay' '$(GBIN)/fitkit-relay-bsd-x86_64'
+    mv '$(GBIN)/fitkit-relay' '$(GBIN)/fitkit-relay-linux-x86_64'
+    mv '$(GOBIN)/darwin_amd64/fitkit-relay' '$(GBIN)/fitkit-relay-darwin-x86_64'
+    
     ls '$(GBIN)'
   workingDirectory: '$(modulePath)'
   displayName: 'Get dependencies, then build'
@@ -55,7 +56,7 @@ steps:
     action: 'create'
     target: '$(Build.SourceVersion)'
     tagSource: 'gitTag'
-    tagPattern: '(r|R)elease( |-)v.*'
+    tagPattern: 'release-v.*'
     assets: '$(GBIN)/*'
     changeLogCompareToRelease: 'lastFullRelease'
     changeLogType: 'commitBased'
