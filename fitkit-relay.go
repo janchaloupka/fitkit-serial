@@ -1,12 +1,21 @@
 package main;
 
 import(
-	"go.bug.st/serial.v1"
 	"go.bug.st/serial.v1/enumerator"
+	"github.com/tarm/serial"
 	"fmt"
 	"log"
 	"flag"
-) 
+	"time"
+	"regexp"
+	"encoding/json"
+)
+
+type fitkit struct{
+	Port		string
+	Version		string
+	Revision	string
+}
 
 func main() {
 	flagListPorts := flag.Bool("list", false, "List all connected FITkits")
@@ -22,35 +31,55 @@ func main() {
 	}
 }
 
+
 func openDevice(portName string){
-	mode := serial.Mode{
-		BaudRate: 460800,
+	
+}
+
+func parseFitkitInfo(portName string, info *fitkit) bool{
+	fitkitRegex, _ := regexp.Compile("FITkit (.+) \\$Rev: (\\d+) \\$")
+	
+	config := serial.Config{
+		Name: portName,
+		Baud: 460800,
+		ReadTimeout: time.Millisecond*500,
 	}
 
-	port, err := serial.Open(portName, &mode);
+	port, err := serial.OpenPort(&config);
 	
 	if err != nil {
 		log.Fatal(err)
 	}
 	
-	fmt.Println("Connected");
-	
-	buff := make([]byte, 100)
+	buff := make([]byte, 64)
+	received := 0
+	valid := false
+
 	for {
-		n, err := port.Read(buff)
+		n, err := port.Read(buff[received:])
 		if err != nil {
 			log.Fatal(err)
 			break
 		}
 
-		if n == 0 || string(buff[:n]) == ">" {
+		received += n
+		
+		submatch := fitkitRegex.FindSubmatch(buff);
+		if len(submatch) >= 3{
+			info.Port = portName
+			info.Version = string(submatch[1])
+			info.Revision = string(submatch[2])
+			valid = true
 			break
 		}
-		fmt.Printf("%v", string(buff[:n]))
+
+		if n == 0 || received >= len(buff) {
+			break
+		}
 	}
 	
-	fmt.Println("Disconnected");
 	port.Close()
+	return valid
 }
 
 func listPorts(){
@@ -58,31 +87,26 @@ func listPorts(){
 	if err != nil {
 		log.Fatal(err)
 	}
+	
 	if len(ports) == 0 {
 		fmt.Println("No serial ports found!")
 		return
 	}
+
+	found := make([]fitkit, 0)
 	for _, port := range ports {
-		fmt.Printf("Found port: %s\n", port.Name)
-		if port.IsUSB {
-			fmt.Printf("   USB ID     %s:%s\n", port.VID, port.PID)
-			fmt.Printf("   USB serial %s\n", port.SerialNumber)
+		if port.IsUSB && port.VID == "0403" && port.PID == "6010"{
+			info := fitkit{}
+			if parseFitkitInfo(port.Name, &info){
+				found = append(found, info)
+			}
 		}
 	}
-
-	return
-
-	//ports, err := serial.GetPortsList()
 	
+	b, err := json.Marshal(found)
 	if err != nil {
 		log.Fatal(err)
-	}
-	
-	if len(ports) == 0 {
-		log.Fatal("No serial ports found!")
-	}
-	
-	for _, port := range ports {
-		fmt.Println(port)
-	}
+    }
+
+	fmt.Println(string(b))
 }
