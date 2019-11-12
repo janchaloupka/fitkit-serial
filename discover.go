@@ -5,7 +5,6 @@ import(
 	"github.com/tarm/serial"
 	"fmt"
 	"log"
-	"flag"
 	"time"
 	"regexp"
 	"encoding/json"
@@ -15,25 +14,6 @@ type fitkit struct{
 	Port		string
 	Version		string
 	Revision	string
-}
-
-func main() {
-	flagListPorts := flag.Bool("list", false, "List all connected FITkits")
-	flagOpen := flag.String("open", "", "Open serial port communication with FITkit")
-
-	flag.Parse()
-
-	if *flagListPorts{
-		listPorts()
-	}else if *flagOpen != "" {
-		fmt.Println("Connecting to: " + *flagOpen)
-		openDevice(*flagOpen)
-	}
-}
-
-
-func openDevice(portName string){
-	
 }
 
 func parseFitkitInfo(portName string, info *fitkit) bool{
