@@ -1,0 +1,48 @@
+name: Go
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Set up Go 1.13
+      uses: actions/setup-go@v1
+      with:
+        go-version: 1.13
+      id: go
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v2
+
+    - name: Get dependencies
+      run: |
+        go get -v -t -d ./...
+        if [ -f Gopkg.toml ]; then
+            curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+            dep ensure
+        fi
+
+    - name: Crossbuild
+      uses: izumin5210/action-go-crossbuild@v1.0.0
+      with:
+        # An application name
+        name: fitkit-relay 
+        # Space or comma separated list of GOARCH
+        arch: amd64
+        # Path to destination directory of built binaries
+        dest: ./dist
+        # `-ldflags` to pass to go build
+        #ldflags: # optional, default is 
+        # `-tags` to pass to go build
+        # Space or comma separated list of GOOS
+        os: darwin,linux,windows
+        # Build target package
+        package: .
