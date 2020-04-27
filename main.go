@@ -1,11 +1,12 @@
 package main
 
 import (
-	"fitkit-relay/discover"
-	"fitkit-relay/terminal"
 	"flag"
 	"fmt"
 	"log"
+
+	"./discover"
+	"./terminal"
 )
 
 func main() {
