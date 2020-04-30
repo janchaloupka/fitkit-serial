@@ -3,10 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 
-	"./discover"
-	"./flash"
-	"./terminal"
+	"github.com/janch32/fitkit-relay/discover"
 )
 
 func main() {
@@ -29,15 +28,27 @@ func main() {
 		}
 
 		fmt.Println("Connecting to " + *flagPort)
-		terminal.Open(*flagPort)
+		OpenTerminal(*flagPort)
 	} else if *flagFlash {
+		if *flagMcu1Hex == "" {
+			log.Fatal("Must specify MCU v1.x HEX file --mcu1hex")
+		}
+
+		if *flagMcu2Hex == "" {
+			log.Fatal("Must specify MCU v2.x HEX file --mcu2hex")
+		}
+
+		if *flagFpgaBin == "" {
+			log.Fatal("Must specify FPGA BIN file --fpgabin")
+		}
+
 		if *flagPort == "" {
 			fmt.Println("Port not specified, running port autodiscovery...")
 			*flagPort = discover.FirstDevice().Port
 		}
 
 		fmt.Println("Connecting to " + *flagPort)
-		flash.Flash(*flagPort, *flagMcu1Hex, *flagMcu2Hex, *flagFpgaBin)
+		Flash(*flagPort, *flagMcu1Hex, *flagMcu2Hex, *flagFpgaBin)
 	} else {
 		fmt.Println("Run with -help to show available flags")
 	}

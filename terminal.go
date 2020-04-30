@@ -1,4 +1,4 @@
-package terminal
+package main
 
 import (
 	"bufio"
@@ -7,17 +7,18 @@ import (
 	"log"
 	"os"
 
-	"go.bug.st/serial.v1"
+	"github.com/albenik/go-serial/v2"
 )
 
-// Open Otevře terminál komunikující s FITkitem na daném portu
-func Open(port string) {
-	conn, err := serial.Open(port, &serial.Mode{
-		BaudRate: 460800,
-		DataBits: 8,
-		Parity:   serial.NoParity,
-		StopBits: serial.OneStopBit,
-	})
+// OpenTerminal Otevře terminál komunikující s FITkitem na daném portu
+func OpenTerminal(port string) {
+	conn, err := serial.Open(
+		port,
+		serial.WithBaudrate(460800),
+		serial.WithDataBits(8),
+		serial.WithStopBits(serial.OneStopBit),
+		serial.WithParity(serial.NoParity),
+	)
 
 	if err != nil {
 		log.Fatal(err)
@@ -28,7 +29,7 @@ func Open(port string) {
 }
 
 // Číst data, které posílá fitkit a vypisovat tato data na standardní výstup
-func readSerial(conn serial.Port) {
+func readSerial(conn *serial.Port) {
 	buffer := make([]byte, 100)
 
 	for {
@@ -49,7 +50,7 @@ func readSerial(conn serial.Port) {
 }
 
 // Číst data ze standardního vstupu a poslat je FITkitu
-func writeSerial(conn serial.Port) {
+func writeSerial(conn *serial.Port) {
 	buffer := make([]byte, 100)
 	reader := bufio.NewReader(os.Stdin)
 

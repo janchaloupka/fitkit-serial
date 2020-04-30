@@ -7,8 +7,8 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/albenik/go-serial/v2/enumerator"
 	"github.com/tarm/serial"
-	"go.bug.st/serial.v1/enumerator"
 )
 
 // Fitkit Struktura obsahující informace o nalezeném FITkitu
