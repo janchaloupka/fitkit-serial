@@ -3,7 +3,7 @@ Multiplatformní utilita psaná v jazyce Go pro vyhledávání, komunikaci a pro
 
 ![Go Build](https://github.com/janch32/fitkit-serial/workflows/Go%20Build/badge.svg)
 
-[Binární soubory ke stažení](https://github.com/janch32/fitkit-serial/actions)
+[Poslední verze ke stažení](https://github.com/janch32/fitkit-serial/releases)
 
 ## Použití
 
