@@ -15,7 +15,7 @@ import (
 // a hex souboru pro naprogramování MCU. Pro MCU je nutné uvést minimálně
 // jeden soubor (musí odpovídat připojenímu FITkitu).
 // Lepší je uvést obě varianty MCU
-func Flash(port string, mcuV1path string, mcuV2path string, fpgaPath string) {
+func Flash(port string, mcuV1path string, mcuV2path string, fpgaPath string, force bool) {
 	b, err := mspbsl.New(port)
 
 	if err != nil {
@@ -43,6 +43,9 @@ func Flash(port string, mcuV1path string, mcuV2path string, fpgaPath string) {
 	}
 
 	massErase := !tryPassword(b, pass1) && !tryPassword(b, pass2)
+	if force {
+		massErase = true
+	}
 
 	if massErase {
 		fmt.Println("Mass erase")
@@ -98,13 +101,16 @@ func Flash(port string, mcuV1path string, mcuV2path string, fpgaPath string) {
 	fmt.Println("FITkit bootloader running")
 
 	fkbsl := fitkitbsl.NewFITkitBsl(b)
-	err = fkbsl.Program(mcuHexPath, fpgaPath, massErase, false)
+	err = fkbsl.Program(mcuHexPath, fpgaPath, massErase, force)
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	//mcuMem.GetDataSegments()
+	err = b.ComDone()
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func tryPassword(b *mspbsl.Instance, passwd []byte) bool {

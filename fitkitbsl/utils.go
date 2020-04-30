@@ -10,8 +10,8 @@ import (
 	"github.com/janch32/fitkit-serial/memory"
 )
 
-// Block pro nahrání do MCU
-type Block struct {
+// Segment binárních dat
+type Segment struct {
 	Address int
 	Data    []byte
 }
@@ -19,7 +19,7 @@ type Block struct {
 // IntelHexConvertToBlocks - Prekonvertuje segmenty tak, aby vznikly segmenty
 // velikosti BLOCKSIZE bytu pokud nasleduje vice bloku bezprostredne zasebou,
 // spoji je az dosahnou velikosti MAXBLOCKSIZE
-func IntelHexConvertToBlocks(mem *memory.Memory, blockSize int, maxBlockSize int) ([]Block, error) {
+func IntelHexConvertToBlocks(mem *memory.Memory, blockSize int, maxBlockSize int) ([]Segment, error) {
 	if maxBlockSize%blockSize > 0 {
 		return nil, errors.New("maxBlockSize musi byt nasobek blockSize")
 	}
@@ -35,7 +35,7 @@ func IntelHexConvertToBlocks(mem *memory.Memory, blockSize int, maxBlockSize int
 		lenSeg := len(s.Data)
 		bAddr, bCnt := blockBounds(sAddr, lenSeg, blockSize)
 
-		for i := bAddr; i < bAddr+bCnt*blockSize; i++ {
+		for i := bAddr; i < bAddr+bCnt*blockSize; i += blockSize {
 			if !inArray(usedBlocks, int(i)) {
 				usedBlocks = append(usedBlocks, int(i))
 				usedBlocksLen = append(usedBlocksLen, 1)
@@ -69,7 +69,7 @@ func IntelHexConvertToBlocks(mem *memory.Memory, blockSize int, maxBlockSize int
 	}
 
 	// Vytvoreni novych segmentu a jejich naplneni daty
-	blocks := []Block{}
+	blocks := []Segment{}
 	for i := 0; i < len(usedBlocks); i++ {
 		bAddr := usedBlocks[i]
 		bLen := usedBlocksLen[i]
@@ -108,7 +108,7 @@ func IntelHexConvertToBlocks(mem *memory.Memory, blockSize int, maxBlockSize int
 			copy(bData[bofs:beofs+1], sData[sofs:seofs+1])
 		}
 
-		blocks = append(blocks, Block{
+		blocks = append(blocks, Segment{
 			Address: bAddr,
 			Data:    bData,
 		})
@@ -157,23 +157,16 @@ func min(x, y int) int {
 	return y
 }
 
-// Golang function used to generate MD5 digitest from file
-// source: https://mrwaggel.be/post/generate-md5-hash-of-a-file-in-golang/
+// generate MD5 digitest from file
 func hashFileMD5(file *os.File) ([]byte, error) {
-	//Tell the program to call the following function when the current function returns
 	defer file.Close()
 
-	//Open a new hash interface to write to
 	hash := md5.New()
-
-	//Copy the file in the hash interface and check for any error
 	if _, err := io.Copy(hash, file); err != nil {
 		return nil, err
 	}
 
-	//Get the 16 bytes hash
-	hashInBytes := hash.Sum(nil)[:16]
-
-	return hashInBytes, nil
+	// Return raw MD5 bytes
+	return hash.Sum(nil)[:16], nil
 
 }

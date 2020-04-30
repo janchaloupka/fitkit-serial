@@ -3,7 +3,7 @@ package mspbsl
 import (
 	"encoding/binary"
 	"errors"
-	"log"
+	"fmt"
 
 	"github.com/janch32/fitkit-serial/memory"
 )
@@ -15,7 +15,7 @@ const (
 // TxPasswd - Transmit password, default if nil is given
 func (b *Instance) TxPasswd(passwd []byte, wait bool) error {
 	if passwd == nil {
-		log.Print("Transmitting default password...")
+		fmt.Print("Transmitting default password...")
 		passwd = make([]byte, 32)
 		for i := 0; i < len(passwd); i++ {
 			passwd[i] = 0xFF
@@ -240,7 +240,7 @@ func (b *Instance) ActionStartBSL(
 	if b.CPUFamily == "" {
 		cpu, ok := deviceIDs[devID]
 		if !ok {
-			log.Printf("Autodetect failed! Unknown ID: %04x. Trying to continue anyway.\n", cpu)
+			fmt.Printf("Autodetect failed! Unknown ID: %04x. Trying to continue anyway...\n", cpu)
 			cpu = F1x
 		}
 

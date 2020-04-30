@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"log"
+	"io"
 	"os"
 
 	"github.com/janch32/fitkit-serial/memory"
@@ -216,7 +216,6 @@ func (b *FITkitBSL) actionProgramHEX(hexPath string, mcuErased bool) error {
 	attempts := 5
 	block := 0
 	for attempts > 0 && block < len(hexData) {
-		log.Printf("%d ; %d", block, len(hexData))
 
 		dataBlock := hexData[block]
 		addr := dataBlock.Address
@@ -232,7 +231,7 @@ func (b *FITkitBSL) actionProgramHEX(hexPath string, mcuErased bool) error {
 
 		// Write both blocks?
 		flagsWriteBoth := byte(0x00)
-		if len(data) == maxBlockSize {
+		if len(dataBlock.Data) == maxBlockSize {
 			flagsWriteBoth = 0x01
 		}
 
@@ -275,7 +274,6 @@ func (b *FITkitBSL) actionProgramHEX(hexPath string, mcuErased bool) error {
 			attempts = 5 // Send next packet (if any)
 			block++
 		} else if res == 0xF2 { // Checksum error, try to send the packet again
-			log.Println("checksum err")
 			attempts--
 		} else {
 			return errors.New(ErrorProgramResponse)
@@ -290,7 +288,90 @@ func (b *FITkitBSL) actionProgramHEX(hexPath string, mcuErased bool) error {
 }
 
 func (b *FITkitBSL) actionProgramBIN(binPath string) error {
-	return nil
+	file, err := os.Open(binPath)
+	if err != nil {
+		return err
+	}
+
+	defer file.Close()
+
+	stat, err := file.Stat()
+	if err != nil {
+		return err
+	}
+	fileSize := stat.Size()
+
+	if fileSize <= 208*264 {
+		_, err = b.mspBsl.Write([]byte{0xF4})
+	} else if fileSize <= 805*264 {
+		_, err = b.mspBsl.Write([]byte{0xF5})
+	} else {
+		return errors.New("Invalid file (too large): " + binPath)
+	}
+
+	if err != nil {
+		return err
+	}
+
+	attempts := 10
+	var packet []byte = nil
+
+	for attempts > 0 {
+		attempts--
+
+		cmd, err := b.mspBsl.Read(1)
+		if err != nil {
+			if err.Error() == mspbsl.ErrReadTimeout {
+				continue
+			} else {
+				return err
+			}
+		}
+
+		if cmd[0] == 0xF4 { //Send content of the next page
+			data := make([]byte, 264)
+			_, err := file.Read(data)
+			if err != nil && err != io.EOF {
+				return err
+			}
+
+			chck := calculateChecksum(data)
+			zeroes := true
+			for _, b := range data {
+				if b != 0x00 {
+					zeroes = false
+					break
+				}
+			}
+
+			if zeroes {
+				// block is empty, it is not necessary to send data
+				packet = []byte{chck, 0x00}
+			} else {
+				packet = append([]byte{chck, 0x01}, data...)
+			}
+
+			_, err = b.mspBsl.Write(packet)
+			if err != nil {
+				return err
+			}
+
+			attempts = 5
+		} else if cmd[0] == 0xF5 { // Checksum error, try to send the packet again
+			if packet != nil {
+				_, err = b.mspBsl.Write(packet)
+				if err != nil {
+					return err
+				}
+			}
+		} else if cmd[0] == 0xF6 { // All the blocks were written
+			return nil
+		} else {
+			return errors.New(ErrorFlashCommand)
+		}
+	}
+
+	return errors.New(ErrorFlashInit)
 }
 
 // Program loads provided BIN and HEX files to the FITkit device
@@ -368,9 +449,8 @@ func (b *FITkitBSL) Program(mcuHexPath string, fpgaBinPath string, mcuErased boo
 
 	if !hexEqual || mcuErased || force {
 		fmt.Println("Uploading MCU HEX data")
+		fmt.Println(mcuHexPath)
 
-		log.Println(hexInfoDigitest)
-		log.Println(hexFileDigitest)
 		err = b.actionProgramHEX(mcuHexPath, mcuErased)
 		if err != nil {
 			return err
@@ -381,19 +461,21 @@ func (b *FITkitBSL) Program(mcuHexPath string, fpgaBinPath string, mcuErased boo
 
 	if !binEqual || force {
 		fmt.Println("Uploading FPGA binary data")
+		fmt.Println(fpgaBinPath)
+
 		err = b.actionProgramBIN(fpgaBinPath)
 		if err != nil {
 			return err
 		}
 
-		//fkInfo.UpdateBinInfo(binFileDigitest, binFileModTime, fpgaBinPath)
+		fkInfo.UpdateBinInfo(binFileDigitest, binFileModTime, fpgaBinPath)
 	}
 
-	/*fmt.Println("Writing info")
+	fmt.Println("Writing info")
 	err = b.actionWriteInfo(fkInfo.GetRawData())
 	if err != nil {
 		return err
-	}*/
+	}
 
 	// Send end handshake
 	b.mspBsl.Write([]byte{0xFD})
