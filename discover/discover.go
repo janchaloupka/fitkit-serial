@@ -1,14 +1,11 @@
 package discover
 
 import (
-	"encoding/json"
-	"fmt"
-	"log"
+	"errors"
 	"regexp"
-	"time"
 
+	"github.com/albenik/go-serial/v2"
 	"github.com/albenik/go-serial/v2/enumerator"
-	"github.com/tarm/serial"
 )
 
 // Fitkit Struktura obsahující informace o nalezeném FITkitu
@@ -18,67 +15,68 @@ type Fitkit struct {
 	Revision string // Číslo revize FITkitu
 }
 
-// Kontrola, zda se na sériovém portu nachází FITkit
-func parseFitkitInfo(portName string, info *Fitkit) bool {
+// GetFitkitInfo - Vrátí informaci o FITkitu na daném portu
+// Pokud nastane chyba při čtení vrátí chybu nebo vrátí chybu,
+// pokud se nejedná o validní port FITkitu
+func GetFitkitInfo(portName string) (*Fitkit, error) {
 	fitkitRegex, _ := regexp.Compile("FITkit (.+) \\$Rev: (\\d+) \\$")
 
-	config := serial.Config{
-		Name:        portName,
-		Baud:        460800,
-		ReadTimeout: time.Millisecond * 500,
-	}
-
-	port, err := serial.OpenPort(&config)
+	port, err := serial.Open(
+		portName,
+		serial.WithBaudrate(460800),
+		serial.WithDataBits(8),
+		serial.WithStopBits(serial.OneStopBit),
+		serial.WithParity(serial.NoParity),
+		serial.WithHUPCL(true),
+		serial.WithReadTimeout(500),
+	)
 
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
+
+	defer port.Close()
 
 	buff := make([]byte, 64)
 	received := 0
-	valid := false
 
 	for {
 		n, err := port.Read(buff[received:])
 		if err != nil {
-			log.Fatal(err)
-			break
+			return nil, err
 		}
 
 		received += n
 
 		submatch := fitkitRegex.FindSubmatch(buff)
 		if len(submatch) >= 3 {
-			info.Port = portName
-			info.Version = string(submatch[1])
-			info.Revision = string(submatch[2])
-			valid = true
-			break
+			return &Fitkit{
+				Port:     portName,
+				Version:  string(submatch[1]),
+				Revision: string(submatch[2]),
+			}, nil
 		}
 
 		if n == 0 || received >= len(buff) {
-			break
+			return nil, errors.New("Unknown data")
 		}
 	}
-
-	port.Close()
-	return valid
 }
 
-// AllDevices Najde všechny připojené FITkit přípravky a vrátí seznam těchto přípravků
+// AllDevices - Najde všechny připojené FITkit přípravky a vrátí seznam těchto přípravků
 func AllDevices() []Fitkit {
+	found := []Fitkit{}
+
 	ports, err := enumerator.GetDetailedPortsList()
 	if err != nil {
-		log.Fatal(err)
+		return found
 	}
-
-	found := make([]Fitkit, 0)
 
 	for _, port := range ports {
 		if port.IsUSB && port.VID == "0403" && port.PID == "6010" {
-			info := Fitkit{}
-			if parseFitkitInfo(port.Name, &info) {
-				found = append(found, info)
+			info, err := GetFitkitInfo(port.Name)
+			if err == nil {
+				found = append(found, *info)
 			}
 		}
 	}
@@ -86,35 +84,21 @@ func AllDevices() []Fitkit {
 	return found
 }
 
-// FirstDevice Získá informaci o prvním nalezeném fitkitu
-func FirstDevice() Fitkit {
+// FirstDevice - Získá informaci o prvním nalezeném fitkitu
+func FirstDevice() (*Fitkit, error) {
 	ports, err := enumerator.GetDetailedPortsList()
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
 	for _, port := range ports {
 		if port.IsUSB && port.VID == "0403" && port.PID == "6010" {
-			info := Fitkit{}
-			if parseFitkitInfo(port.Name, &info) {
-				return info
+			info, err := GetFitkitInfo(port.Name)
+			if err == nil {
+				return info, nil
 			}
 		}
 	}
 
-	log.Fatalln("No available FITkit devices found.")
-	return Fitkit{}
-}
-
-// PrintDevices Vypíše na standardní výstup v JSON formátu seznam všech
-// nalezených FITkit přípravků
-func PrintDevices() {
-	found := AllDevices()
-
-	b, err := json.MarshalIndent(found, "", "    ")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	fmt.Println(string(b))
+	return nil, errors.New("No available FITkit devices found")
 }

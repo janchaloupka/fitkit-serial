@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
@@ -22,7 +23,14 @@ func main() {
 	flag.Parse()
 
 	if *flagListPorts {
-		discover.PrintDevices()
+		found := discover.AllDevices()
+
+		b, err := json.MarshalIndent(found, "", "    ")
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		fmt.Println(string(b))
 		os.Exit(0)
 	}
 
@@ -41,7 +49,12 @@ func main() {
 
 		if *flagPort == "" {
 			fmt.Println("Port not specified, running port autodiscovery...")
-			*flagPort = discover.FirstDevice().Port
+
+			fitkit, err := discover.FirstDevice()
+			if err != nil {
+				log.Fatal(err)
+			}
+			*flagPort = fitkit.Port
 		}
 
 		fmt.Println("Connecting to " + *flagPort)
@@ -55,7 +68,12 @@ func main() {
 	if *flagTerm {
 		if *flagPort == "" {
 			fmt.Println("Port not specified, running port autodiscovery...")
-			*flagPort = discover.FirstDevice().Port
+
+			fitkit, err := discover.FirstDevice()
+			if err != nil {
+				log.Fatal(err)
+			}
+			*flagPort = fitkit.Port
 		}
 
 		fmt.Println("Connecting to " + *flagPort)
