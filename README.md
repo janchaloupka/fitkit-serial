@@ -7,7 +7,7 @@ Multiplatformní utilita psaná v jazyce Go pro vyhledávání, komunikaci a pro
 
 ## Použití
 
-### Seznam argumetny programu
+### Seznam argumentů programu
 * **`--help`**
     * Zobrazí nápovědu
 * **`--list`**
@@ -17,15 +17,15 @@ Multiplatformní utilita psaná v jazyce Go pro vyhledávání, komunikaci a pro
 * **`--bin string`**
     * Cesta k binárnímu souboru obsahující data FPGA paměti. Použijte s `--flash`
 * **`--hex1x string`**
-    * Cesta k .hex souboru obsahující data paměti pro MCU v1.x MCU. Pouzijte s `--flash`
+    * Cesta k .hex souboru obsahující data paměti pro MCU v1.x MCU. Použijte s `--flash`
 * **`--hex2x string`**
-    * Cesta k .hex souboru obsahující data paměti pro MCU v2.x MCU. Pouzijte s `--flash`
+    * Cesta k .hex souboru obsahující data paměti pro MCU v2.x MCU. Použijte s `--flash`
 * **`--force`**
     * Vynutit nahrání nových dat. Použijte s `--flash`
 * **`--port string`**
     * Specifikovat, který port má být při komunikaci použit (volitelné). Pokud není specifikován žádný port, program se připojí k prvnímu detekovanému FITkit zařízení
 * **`--term`**
-    * Naváže spojení s FItkitem a otevře terminál. Pokud je zadáno společne s `--flash`, je terminál otevřen po úspěšném nahrání nových dat
+    * Naváže spojení s FItkitem a otevře terminál. Pokud je zadáno společně s `--flash`, je terminál otevřen po úspěšném nahrání nových dat
 
 ### Nalezení připojených zařízení (`--list`)
 Vypíše v JSON formátu všechny detekované FITkit zařízení připojené k počítači. Pokud nejsou detekovány žádné zařízení, vrátí program prázdné pole `[]`
@@ -48,7 +48,7 @@ $ fitkit-serial --list
 ```
 
 ### Otevření terminálu (`--term`)
-Naváže spojení s fitkitem v normálním režimu, kdy je spuštěn nahraný program a je možné interaktivně s programem komunikovat přes standardní vstup a výstup programu.
+Naváže spojení s FITkitem v normálním režimu, kdy je spuštěn nahraný program a je možné interaktivně s programem komunikovat přes standardní vstup a výstup programu.
 
 Zadáním volitelného argumentu `--port` se specifikuje konkrétní sériový port, ke kterému se program připojí. Pokud tento argument není zadán, program prvně provede detekci dostupných zařízení a připojí se na první nalezené zařízení.
 
@@ -81,7 +81,7 @@ Inicializace HW
 ```
 
 ### Programování zařízení (`--flash`)
-Nahraje do MCU a FPGA flash paměti fitkitu nová data. Programování je funkčne identické s utilitou [fkflash](https://merlin.fit.vutbr.cz/FITkit/docs/navody/app_fkflash.html). Při programování je nutné specifikovat .hex soubory MCUv1.x (`--hex1x`) a MCUv2.x (`--hex2x`) a binární soubor FPGA dat `--bin`. Utilita využívá k rychlejší komunikaci optimalizovaný bootloader, jehož autorem je Doc. Ing. Zdeněk Vašíček, PhD.
+Nahraje do MCU a FPGA flash paměti FITitu nová data. Programování je funkčne identické s utilitou [fkflash](https://merlin.fit.vutbr.cz/FITkit/docs/navody/app_fkflash.html). Při programování je nutné specifikovat .hex soubory MCUv1.x (`--hex1x`), MCUv2.x (`--hex2x`) a binární soubor FPGA dat `--bin`. Utilita využívá k rychlejší komunikaci optimalizovaný bootloader, jehož autorem je Doc. Ing. Zdeněk Vašíček, PhD.
 
 Stejně jako u terminálu je možné zadat volitelný argument `--port` specifikující konkrétní sériový port, ke kterému se program připojí. Pokud tento argument není zadán, program prvně provede detekci dostupných zařízení a připojí se na první nalezené zařízení.
 
