@@ -18,34 +18,40 @@ func OpenTerminal(port string) {
 		serial.WithDataBits(8),
 		serial.WithStopBits(serial.OneStopBit),
 		serial.WithParity(serial.NoParity),
+		serial.WithHUPCL(true),
+		serial.WithReadTimeout(100),
 	)
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	go readSerial(conn)
+	defer conn.Close()
+
+	closed := false
+
+	go readSerial(conn, &closed)
 	writeSerial(conn)
+	closed = true
 }
 
-// Číst data, které posílá fitkit a vypisovat tato data na standardní výstup
-func readSerial(conn *serial.Port) {
+// Číst data, které posílá FITkit a vypisovat tato data na standardní výstup
+func readSerial(conn *serial.Port, isClosed *bool) {
 	buffer := make([]byte, 100)
 
 	for {
 		n, err := conn.Read(buffer)
+
+		if *isClosed {
+			break
+		}
 
 		if err != nil {
 			log.Fatal(err)
 			break
 		}
 
-		if n == 0 {
-			fmt.Println("\nEOF")
-			break
-		}
-
-		fmt.Printf("%v", string(buffer[:n]))
+		fmt.Print(string(buffer[:n]))
 	}
 }
 
@@ -63,7 +69,6 @@ func writeSerial(conn *serial.Port) {
 			if err != io.EOF {
 				log.Fatal(err)
 			}
-
 			break
 		}
 

@@ -116,16 +116,16 @@ var baudrateF1x = map[int]baudrateEntry{
 
 // Baudrate list with values for F2x family CPU
 var baudrateF2x = map[int]baudrateEntry{
-	9600:  {addr: 0x9800, len: 0x0000},
-	19200: {addr: 0xb000, len: 0x0001},
-	38400: {addr: 0xc800, len: 0x0002},
+	9600:  {addr: 0x8880, len: 0x0000},
+	19200: {addr: 0x8a80, len: 0x0001},
+	38400: {addr: 0x8f80, len: 0x0002},
 }
 
 // Baudrate list with values for F4x family CPU
 var baudrateF4x = map[int]baudrateEntry{
-	9600:  {addr: 0x8880, len: 0x0000},
-	19200: {addr: 0x8a80, len: 0x0001},
-	38400: {addr: 0x8f80, len: 0x0002},
+	9600:  {addr: 0x9800, len: 0x0000},
+	19200: {addr: 0xb000, len: 0x0001},
+	38400: {addr: 0xc800, len: 0x0002},
 }
 
 // copy of the patch file provided by TI

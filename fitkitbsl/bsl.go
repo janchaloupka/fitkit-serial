@@ -412,13 +412,13 @@ func (b *FITkitBSL) Program(mcuHexPath string, fpgaBinPath string, mcuErased boo
 		return err
 	}
 
-	fmt.Println("FITkit BSL handshake")
+	fmt.Println("FITkit bootloader handshake...")
 	err = b.actionInitialize()
 	if err != nil {
 		return err
 	}
 
-	fmt.Println("Reading info")
+	fmt.Println("Reading info...")
 	err = b.actionReadInfo()
 	if err != nil {
 		return err
@@ -447,8 +447,9 @@ func (b *FITkitBSL) Program(mcuHexPath string, fpgaBinPath string, mcuErased boo
 	hexEqual := (bytes.Compare(hexInfoDigitest, hexFileDigitest) == 0) && (hexInfoModTime == hexFileModTime)
 	binEqual := (bytes.Compare(binInfoDigitest, binFileDigitest) == 0) && (binInfoModTime == binFileModTime)
 
+	fmt.Println("")
 	if !hexEqual || mcuErased || force {
-		fmt.Println("Uploading MCU HEX data")
+		fmt.Println("Uploading MCU HEX data...")
 		fmt.Println(mcuHexPath)
 
 		err = b.actionProgramHEX(mcuHexPath, mcuErased)
@@ -457,10 +458,13 @@ func (b *FITkitBSL) Program(mcuHexPath string, fpgaBinPath string, mcuErased boo
 		}
 
 		fkInfo.UpdateHexInfo(hexFileDigitest, hexFileModTime, mcuHexPath)
+	} else {
+		fmt.Println("Skipping MCU flash, digitest matches (identical data are already in the MCU flash)")
 	}
 
+	fmt.Println("")
 	if !binEqual || force {
-		fmt.Println("Uploading FPGA binary data")
+		fmt.Println("Uploading FPGA binary data...")
 		fmt.Println(fpgaBinPath)
 
 		err = b.actionProgramBIN(fpgaBinPath)
@@ -469,9 +473,12 @@ func (b *FITkitBSL) Program(mcuHexPath string, fpgaBinPath string, mcuErased boo
 		}
 
 		fkInfo.UpdateBinInfo(binFileDigitest, binFileModTime, fpgaBinPath)
+	} else {
+		fmt.Println("Skipping FPGA flash, digitest matches (identical data are already in the FPGA flash)")
 	}
 
-	fmt.Println("Writing info")
+	fmt.Println("")
+	fmt.Println("Writing info...")
 	err = b.actionWriteInfo(fkInfo.GetRawData())
 	if err != nil {
 		return err
@@ -479,6 +486,7 @@ func (b *FITkitBSL) Program(mcuHexPath string, fpgaBinPath string, mcuErased boo
 
 	// Send end handshake
 	b.mspBsl.Write([]byte{0xFD})
+	fmt.Println("Success")
 
 	return nil
 }

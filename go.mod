@@ -9,7 +9,7 @@ require (
 	github.com/janch32/fitkit-serial/memory v0.0.0
 	github.com/janch32/fitkit-serial/mspbsl v0.0.0
 	github.com/marcinbor85/gohex v0.0.0-20180128172054-7a43cd876e46 // indirect
-	github.com/tarm/serial v0.0.0-20180830185346-98f6abe2eb07 // indirect
+	github.com/tarm/serial v0.0.0-20180830185346-98f6abe2eb07
 )
 
 replace github.com/janch32/fitkit-serial/discover => ./discover

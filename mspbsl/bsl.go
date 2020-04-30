@@ -15,7 +15,7 @@ const (
 // TxPasswd - Transmit password, default if nil is given
 func (b *Instance) TxPasswd(passwd []byte, wait bool) error {
 	if passwd == nil {
-		fmt.Print("Transmitting default password...")
+		fmt.Println("Transmitting default password...")
 		passwd = make([]byte, 32)
 		for i := 0; i < len(passwd); i++ {
 			passwd[i] = 0xFF
