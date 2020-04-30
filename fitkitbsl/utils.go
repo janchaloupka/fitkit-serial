@@ -7,7 +7,7 @@ import (
 	"os"
 	"sort"
 
-	"github.com/janch32/fitkit-relay/memory"
+	"github.com/janch32/fitkit-serial/memory"
 )
 
 // Block pro nahrání do MCU

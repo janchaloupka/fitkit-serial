@@ -7,8 +7,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/janch32/fitkit-relay/memory"
-	"github.com/janch32/fitkit-relay/mspbsl"
+	"github.com/janch32/fitkit-serial/memory"
+	"github.com/janch32/fitkit-serial/mspbsl"
 )
 
 const (

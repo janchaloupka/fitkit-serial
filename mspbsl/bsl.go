@@ -5,7 +5,7 @@ import (
 	"errors"
 	"log"
 
-	"github.com/janch32/fitkit-relay/memory"
+	"github.com/janch32/fitkit-serial/memory"
 )
 
 const (

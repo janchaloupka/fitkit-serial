@@ -32,12 +32,12 @@ jobs:
 
     - name: Crossbuild
       run: |
-        env GOOS=windows GOARCH=amd64 go build -v -o build/fitkit-relay-win64.exe .
-        env GOOS=linux GOARCH=amd64 go build -v -o build/fitkit-relay-linux64 .
-      #env GOOS=darwin GOARCH=amd64 go build -v -o build/fitkit-relay-darwin64 .
+        env GOOS=windows GOARCH=amd64 go build -v -o build/fitkit-serial-win64.exe .
+        env GOOS=linux GOARCH=amd64 go build -v -o build/fitkit-serial-linux64 .
+      #env GOOS=darwin GOARCH=amd64 go build -v -o build/fitkit-serial-darwin64 .
 
     - name: Upload executables
       uses: actions/upload-artifact@v1.0.0
       with:
-        name: fitkit-relay-bin
+        name: fitkit-serial-bin
         path: build

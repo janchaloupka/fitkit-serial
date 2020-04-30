@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/janch32/fitkit-relay/discover"
+	"github.com/janch32/fitkit-serial/discover"
 )
 
 func main() {

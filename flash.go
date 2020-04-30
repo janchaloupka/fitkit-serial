@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/janch32/fitkit-relay/fitkitbsl"
-	"github.com/janch32/fitkit-relay/memory"
-	"github.com/janch32/fitkit-relay/mspbsl"
+	"github.com/janch32/fitkit-serial/fitkitbsl"
+	"github.com/janch32/fitkit-serial/memory"
+	"github.com/janch32/fitkit-serial/mspbsl"
 )
 
 // Flash Spustí programování FITkitu na daném portu port
