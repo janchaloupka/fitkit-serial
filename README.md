@@ -32,7 +32,6 @@ Vypíše v JSON formátu všechny detekované FITkit zařízení připojené k p
 #### Příklad
 ```
 $ fitkit-serial --list
-
 [
     {
         "Port": "COM6",
@@ -55,7 +54,6 @@ Zadáním volitelného argumentu `--port` se specifikuje konkrétní sériový p
 ### Příklad
 ```
 $ fitkit-serial --term
-
 Port not specified, running port autodiscovery...
 Connecting to COM6
 FITkit 2.x $Rev: 163 $
@@ -69,7 +67,6 @@ Inicializace HW
 
 ```
 $ fitkit-serial --term --port COM10
-
 Connecting to COM10
 FITkit 1.x $Rev: 163 $
 
@@ -92,7 +89,6 @@ Zároveň je možné také specifikovat argument `--term`. Pokud dojde k úspě�
 #### Příklad
 ```
 $ fitkit-serial --flash --hex1x build/output_f1xx.hex --hex2x build/output_f2xx.hex --bin build/output.bin
-
 Port not specified, running port autodiscovery...
 Connecting to COM6
 CPU: F2x family; Device: F26F; FITkitBSLrev: 20090326
@@ -111,7 +107,6 @@ Success
 
 ```
 $ fitkit-serial --flash --hex1x build/output_f1xx.hex --hex2x build/output_f2xx.hex --bin build/output.bin --force --port COM6
-
 Connecting to COM6
 Mass erase
 Transmitting default password...
