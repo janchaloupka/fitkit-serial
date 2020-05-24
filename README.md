@@ -25,11 +25,11 @@ Multiplatformní utilita psaná v jazyce Go pro vyhledávání, komunikaci a pro
 * **`--port string`**
     * Specifikovat, který port má být při komunikaci použit (volitelné). Pokud není specifikován žádný port, program se připojí k prvnímu detekovanému FITkit zařízení
 * **`--term`**
-    * Naváže spojení s FItkitem a otevře terminál. Pokud je zadáno společně s `--flash`, je terminál otevřen po úspěšném nahrání nových dat
+    * Naváže spojení s FITkitem a otevře terminál. Pokud je zadáno společně s `--flash`, je terminál otevřen po úspěšném nahrání nových dat
 
 ### Nalezení připojených zařízení (`--list`)
 Vypíše v JSON formátu všechny detekované FITkit zařízení připojené k počítači. Pokud nejsou detekovány žádné zařízení, vrátí program prázdné pole `[]`
-#### Příkad
+#### Příklad
 ```
 $ fitkit-serial --list
 
@@ -81,7 +81,7 @@ Inicializace HW
 ```
 
 ### Programování zařízení (`--flash`)
-Nahraje do MCU a FPGA flash paměti FITitu nová data. Programování je funkčne identické s utilitou [fkflash](https://merlin.fit.vutbr.cz/FITkit/docs/navody/app_fkflash.html). Při programování je nutné specifikovat .hex soubory MCUv1.x (`--hex1x`), MCUv2.x (`--hex2x`) a binární soubor FPGA dat `--bin`. Utilita využívá k rychlejší komunikaci optimalizovaný bootloader, jehož autorem je Doc. Ing. Zdeněk Vašíček, PhD.
+Nahraje do MCU a FPGA flash paměti FITkitu nová data. Programování je funkčně identické s utilitou [fkflash](https://merlin.fit.vutbr.cz/FITkit/docs/navody/app_fkflash.html). Při programování je nutné specifikovat .hex soubory MCUv1.x (`--hex1x`), MCUv2.x (`--hex2x`) a binární soubor FPGA dat `--bin`. Utilita využívá k rychlejší komunikaci optimalizovaný boot loader, jehož autorem je Doc. Ing. Zdeněk Vašíček, PhD.
 
 Stejně jako u terminálu je možné zadat volitelný argument `--port` specifikující konkrétní sériový port, ke kterému se program připojí. Pokud tento argument není zadán, program prvně provede detekci dostupných zařízení a připojí se na první nalezené zařízení.
 

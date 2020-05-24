@@ -1,5 +1,18 @@
 package fitkitbsl
 
+/**
+ * Vlastní optimalizovaný boot loader MCU umožňující rychlejší
+ * komunikaci a nahrání MCU a FPGA programů.
+ *
+ * Autorem boot loaderu, který je uložený v tomto souboru, je
+ * Doc. Ing. Zdeněk Vašíček, PhD.
+ *
+ *
+ * Copyright (C) 2009 Brno University of Technology,
+ * Faculty of Information Technology
+ * Autor: Zdeněk Vašíček <vasicek AT fit.vutbr.cz>
+ */
+
 // BSLHexRevision - Verze FITkit bootloaderu
 const BSLHexRevision = "20090326"
 
